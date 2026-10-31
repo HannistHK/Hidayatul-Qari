@@ -1,6 +1,6 @@
 # Hidayat-ul-Qari Sharah Sahih al-Bukhari
 
-> **ہدایۃ القاری شرح صحیح البخاری** — Complete collection of **7,563 Hadiths** of Sahih al-Bukhari with Arabic Matn, Urdu Translation, and Commentary (Sharh) by **Shaykh Abdul Sattar Hammad**, packaged into an ultra-fast, zero-dependency static web application ready for GitHub Pages.
+> **ہدایۃ القاری شرح صحیح البخاری** | Complete collection of **7,563 Hadiths** of Sahih al-Bukhari with Arabic Matn, Urdu Translation, and Commentary (Sharh) by **Shaykh Abdul Sattar Hammad**, packaged into an ultra-fast, zero-dependency static web application ready for GitHub Pages.
 
 [![Deploy to GitHub Pages](https://github.com/shahzebfaisal/Hidayatul-Qari/actions/workflows/deploy.yml/badge.svg)](https://github.com/shahzebfaisal/Hidayatul-Qari/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -34,9 +34,9 @@ Alternatively, the included automated GitHub Action workflow (`.github/workflows
   - Search by keywords in Arabic (with automatic diacritics / tashkeel normalization).
   - Search by Urdu translation and commentary.
   - Search scope selector (`All Fields`, `Arabic Matn`, `Urdu Translation`, `Urdu Commentary`).
-- **Dual-Phase Progressive Loading**:
-  - **Phase 1 (Instant Paint <100ms)**: Loads table of contents and initial hadiths batch for instantaneous rendering.
-  - **Phase 2 (Background Preload)**: Silently preloads the complete 7,563 hadiths dataset in the background.
+- **On-Demand Static API Architecture**:
+  - **Instant Search Index**: Loads a compact search index (`data/search_index.json`) for sub-3ms instantaneous filtering across all 7,563 hadiths.
+  - **REST-Like Static API**: Each hadith has its own discrete JSON file (`data/hadiths/{id}.json`) fetched on demand via `fetch()`, keeping network payloads micro-sized (~3 KB per hadith).
 - **Authentic Islamic Calligraphy & Typography**:
   - **Arabic Matn**: King Fahd Complex **KFGQPC Uthman Taha Naskh** (`fonts/arabic.ttf`).
   - **Urdu Translation & Commentary**: Authentic **Jameel Noori Nastaleeq** (`fonts/urdu.ttf`) with generous word spacing (`0.24em`).
@@ -69,9 +69,12 @@ Hidayatul-Qari/
 │   └── urdu.ttf              # Jameel Noori Nastaleeq font
 └── data/
     ├── chapters.json         # 98 Chapters metadata and hadith ranges
-    ├── initial_hadiths.json  # First 30 hadiths for instant first paint (<320 KB)
-    ├── bukhari_all.json      # Complete 7,563 hadiths dataset (~6.3 MB gzipped)
-    └── stats.json            # Collection statistics
+    ├── search_index.json     # Fast client-side search and filtering index
+    ├── stats.json            # Collection statistics
+    └── hadiths/              # 7,563 individual Hadith JSON API files
+        ├── 1.json
+        ├── 2.json
+        └── ...
 ```
 
 ---
@@ -102,7 +105,7 @@ If you modify the source hadith datasets or SQLite database in the parent projec
 python build_data.py
 ```
 
-This will automatically re-extract, normalize, and minify `data/chapters.json`, `data/initial_hadiths.json`, and `data/bukhari_all.json`.
+This will automatically re-extract, normalize, and generate `data/chapters.json`, `data/stats.json`, `data/search_index.json`, and all 7,563 files in `data/hadiths/`.
 
 ---
 

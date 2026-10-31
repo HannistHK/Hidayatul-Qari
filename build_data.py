@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
 build_data.py
-Extracts and generates optimized, minified static JSON datasets for
-GitHub Pages deployment of Hidayat-ul-Qari Sharah Sahih al-Bukhari.
+Generates:
+1. data/chapters.json (Table of Contents for 98 Books)
+2. data/search_index.json (Lightweight instant search & filter index)
+3. data/hadiths/{id}.json (Individual standalone JSON file for every hadith with Matn, Tarjumah, and Sharh)
+4. data/stats.json (Metadata)
 """
 
 import os
@@ -17,14 +20,17 @@ if sys.platform == 'win32':
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(CURRENT_DIR)
 DATA_DIR = os.path.join(CURRENT_DIR, 'data')
+HADITHS_DIR = os.path.join(DATA_DIR, 'hadiths')
+
 os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(HADITHS_DIR, exist_ok=True)
 
 CHAPTERS_INPUT = os.path.join(PARENT_DIR, 'chapters.json')
 DB_INPUT = os.path.join(PARENT_DIR, 'bukhari.db')
 
-def build_datasets():
+def build_all():
     start_time = time.time()
-    print("Building datasets for GitHub Pages...")
+    print("Building datasets...")
 
     # 1. Chapters JSON
     with open(CHAPTERS_INPUT, 'r', encoding='utf-8') as f:
@@ -45,7 +51,7 @@ def build_datasets():
     with open(chapters_path, 'w', encoding='utf-8') as f:
         json.dump(clean_chapters, f, ensure_ascii=False, separators=(',', ':'))
 
-    print(f"Generated {chapters_path} ({os.path.getsize(chapters_path) / 1024:.1f} KB)")
+    print(f"1. Chapters generated: {chapters_path}")
 
     # 2. Stats JSON
     stats_data = {
@@ -70,46 +76,71 @@ def build_datasets():
                section_id, section_arabic, section_urdu,
                arabic_text, arabic_text_search,
                urdu_translation, urdu_sharh,
-               grading, type_atraaf, type_rawaat, type_qft
+               type_atraaf, type_rawaat, type_qft
         FROM hadiths
         ORDER BY hadith_number ASC
     ''').fetchall()
     conn.close()
 
-    all_hadiths = []
+    print(f"Loaded {len(rows)} hadiths from database.")
+
+    search_index = []
+    count_files = 0
+
     for r in rows:
-        h = {
-            'n': r['hadith_number'],
+        hid = r['hadith_number']
+
+        # Individual Hadith JSON file
+        hadith_obj = {
+            'id': hid,
+            'hadith_number': hid,
+            'chapter_id': r['chapter_id'],
+            'chapter_arabic': r['chapter_arabic'],
+            'chapter_urdu': r['chapter_urdu'],
+            'section_id': r['section_id'],
+            'section_arabic': r['section_arabic'],
+            'section_urdu': r['section_urdu'],
+            'arabic': r['arabic_text'],
+            'arabic_search': r['arabic_text_search'],
+            'translation': r['urdu_translation'],
+            'sharh': r['urdu_sharh'],
+            'classification': {
+                'atraaf': r['type_atraaf'] or '',
+                'rawaat': r['type_rawaat'] or '',
+                'qft': r['type_qft'] or ''
+            }
+        }
+
+        hadith_file = os.path.join(HADITHS_DIR, f"{hid}.json")
+        with open(hadith_file, 'w', encoding='utf-8') as hf:
+            json.dump(hadith_obj, hf, ensure_ascii=False, separators=(',', ':'))
+        count_files += 1
+
+        # Search Index Item
+        search_index.append({
+            'id': hid,
             'c': r['chapter_id'],
-            'ca': r['chapter_arabic'],
             'cu': r['chapter_urdu'],
-            'sa': r['section_arabic'],
+            'ca': r['chapter_arabic'],
             'su': r['section_urdu'],
-            'a': r['arabic_text'],
             'as': r['arabic_text_search'],
-            'u': r['urdu_translation'],
-            's': r['urdu_sharh'],
-            'g': r['grading'] or 'صحيح',
+            'ut': r['urdu_translation'],
+            'us': r['urdu_sharh'][:350] if r['urdu_sharh'] else '',
             'ta': r['type_atraaf'] or '',
             'tr': r['type_rawaat'] or '',
             'tq': r['type_qft'] or ''
-        }
-        all_hadiths.append(h)
+        })
 
-    # 4. Initial Batch (First 30 Hadiths) for instant initial page render
-    initial_path = os.path.join(DATA_DIR, 'initial_hadiths.json')
-    with open(initial_path, 'w', encoding='utf-8') as f:
-        json.dump(all_hadiths[:30], f, ensure_ascii=False, separators=(',', ':'))
-    print(f"Generated {initial_path} ({os.path.getsize(initial_path) / 1024:.1f} KB)")
+    print(f"2. Generated {count_files} individual hadith JSON files in {HADITHS_DIR}")
 
-    # 5. Full Dataset
-    all_path = os.path.join(DATA_DIR, 'bukhari_all.json')
-    with open(all_path, 'w', encoding='utf-8') as f:
-        json.dump(all_hadiths, f, ensure_ascii=False, separators=(',', ':'))
+    # 4. Save Search Index
+    index_path = os.path.join(DATA_DIR, 'search_index.json')
+    with open(index_path, 'w', encoding='utf-8') as f:
+        json.dump(search_index, f, ensure_ascii=False, separators=(',', ':'))
 
-    size_mb = os.path.getsize(all_path) / (1024 * 1024)
-    print(f"Generated {all_path} with {len(all_hadiths)} Hadiths ({size_mb:.2f} MB)")
-    print(f"Done in {time.time() - start_time:.2f} seconds!")
+    index_mb = os.path.getsize(index_path) / (1024 * 1024)
+    print(f"3. Generated search index: {index_path} ({index_mb:.2f} MB)")
+    print(f"All done in {time.time() - start_time:.2f} seconds!")
 
 if __name__ == '__main__':
-    build_datasets()
+    build_all()

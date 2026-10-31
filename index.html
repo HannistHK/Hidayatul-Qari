@@ -590,7 +590,7 @@
       padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
       position: relative;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
@@ -601,86 +601,42 @@
     }
 
     /* Card Top Bar */
-    .card-top {
+    .card-header-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
-      padding-bottom: 12px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--border-subtle);
     }
 
-    .serial-group {
+    .hadith-badge-wrap {
       display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
     }
 
-    .serial-tag {
+    .hadith-num-badge {
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: 700;
-      padding: 4px 10px;
-      border-radius: var(--r-xs);
-      background: var(--bg-inset);
-      border: 1px solid var(--border-subtle);
-      color: var(--accent-indigo);
-    }
-
-    .chapter-tag {
-      font-family: var(--font-urdu);
-      direction: rtl;
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: var(--r-xs);
-      background: var(--bg-inset);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      cursor: pointer;
-      word-spacing: 0.18em;
-      transition: all 0.15s ease;
-    }
-
-    .chapter-tag:hover {
-      color: var(--accent-indigo);
-      border-color: var(--accent-indigo);
-    }
-
-    .section-tag {
-      font-family: var(--font-urdu);
-      direction: rtl;
-      font-size: 0.94rem;
-      color: var(--text-muted);
-      word-spacing: 0.18em;
-    }
-
-    .badges-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .badge-grading {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 10px;
+      padding: 5px 12px;
       border-radius: var(--r-full);
-      background: rgba(16, 185, 129, 0.12);
-      color: var(--accent-emerald);
-      border: 1px solid rgba(16, 185, 129, 0.28);
+      background: var(--bg-inset);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-indigo);
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
 
     .badge-classif {
       font-size: 0.75rem;
       font-family: var(--font-urdu);
       direction: rtl;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: var(--r-xs);
       background: var(--bg-inset);
       color: var(--text-muted);
@@ -712,6 +668,104 @@
       color: var(--accent-indigo);
       border-color: var(--accent-indigo);
       background: var(--bg-card);
+    }
+
+    /* Dedicated Kitab & Baab Container for Readability */
+    .kitab-baab-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+      padding: 14px 18px;
+    }
+
+    .kitab-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      cursor: pointer;
+    }
+
+    .kitab-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .kitab-icon-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: var(--r-xs);
+      background: rgba(99, 102, 241, 0.12);
+      color: var(--accent-indigo);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+
+    .kitab-title-urdu {
+      font-family: var(--font-urdu);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      direction: rtl;
+      text-align: right;
+      word-spacing: 0.22em;
+      line-height: 1.7;
+      transition: color 0.15s ease;
+    }
+
+    .kitab-banner:hover .kitab-title-urdu {
+      color: var(--accent-indigo);
+    }
+
+    .kitab-title-arabic {
+      font-family: var(--font-arabic);
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      direction: rtl;
+      text-align: right;
+    }
+
+    .baab-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-subtle);
+    }
+
+    .baab-icon-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: var(--r-xs);
+      background: var(--bg-inset);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .baab-title-urdu {
+      font-family: var(--font-urdu);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      direction: rtl;
+      text-align: right;
+      word-spacing: 0.22em;
+      line-height: 1.7;
+      flex: 1;
     }
 
     /* Section Boxes inside Hadith Card */
@@ -857,6 +911,26 @@
     .toggle-sharh-btn:hover {
       background: var(--bg-inset);
       border-color: var(--accent-indigo);
+    }
+
+    /* Loading Skeleton for Hadith Detail API Call */
+    .hadith-skeleton-loader {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .skeleton-line {
+      height: 16px;
+      border-radius: 4px;
+      background: var(--bg-inset);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 0.95; }
     }
 
     /* Card Bottom Action Bar */
@@ -1103,7 +1177,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
 
     .modal-footer {
@@ -1216,35 +1290,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Background Library Load Pill */
-    .bg-load-pill {
-      position: fixed;
-      top: 14px;
-      right: 18px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      box-shadow: var(--shadow-md);
-      border-radius: var(--r-full);
-      padding: 6px 14px;
-      font-size: 0.72rem;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      z-index: 999;
-      opacity: 0.95;
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .bg-load-spinner {
-      width: 12px;
-      height: 12px;
-      border: 2px solid var(--border-subtle);
-      border-top-color: var(--accent-indigo);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
     @media (max-width: 640px) {
       .app-container {
         padding: 16px 12px 36px;
@@ -1256,25 +1301,19 @@
       .hadith-card {
         padding: 16px 14px;
       }
+      .kitab-baab-container {
+        padding: 12px 14px;
+      }
       .hadith-section-box {
         padding: 14px 14px;
       }
       .section-title-urdu {
         font-size: 1.15rem;
       }
-      .bg-load-pill {
-        display: none;
-      }
     }
   </style>
 </head>
 <body>
-
-  <!-- Library Preload Indicator -->
-  <div id="bgLoadPill" class="bg-load-pill" style="display: none;">
-    <div class="bg-load-spinner"></div>
-    <span id="bgLoadText">Loading complete Hadith database...</span>
-  </div>
 
   <div class="app-container">
 
@@ -1534,9 +1573,9 @@
   <!-- Static Client-Side Application Logic (GitHub Pages Native) -->
   <script>
     let allChapters = [];
-    let allHadiths = [];        // Loaded dataset (initial batch -> then full 7,563)
-    let filteredHadiths = [];   // Filtered results
-    let isFullLibraryLoaded = false;
+    let searchIndex = [];       // Lightweight search & browse index for all 7,563 hadiths
+    let filteredItems = [];     // Filtered search index results
+    const hadithCache = new Map(); // Cache of loaded hadith details
 
     let currentQuery = '';
     let currentChapter = '';
@@ -1612,7 +1651,36 @@
         .trim();
     }
 
-    // Initialize application: Phase 1 (Instant Paint) -> Phase 2 (Background Preload)
+    // API Call to fetch individual Hadith JSON file
+    async function fetchHadithData(hadithNum) {
+      if (hadithCache.has(hadithNum)) {
+        return hadithCache.get(hadithNum);
+      }
+
+      // Try static json file first (native GitHub Pages API)
+      try {
+        const res = await fetch(`./data/hadiths/${hadithNum}.json`);
+        if (res.ok) {
+          const data = await res.json();
+          hadithCache.set(hadithNum, data);
+          return data;
+        }
+      } catch (e) {}
+
+      // Fallback for Flask backend if running locally
+      try {
+        const res = await fetch(`/api/hadith/${hadithNum}`);
+        if (res.ok) {
+          const data = await res.json();
+          hadithCache.set(hadithNum, data);
+          return data;
+        }
+      } catch (e) {}
+
+      return null;
+    }
+
+    // Initialize application
     document.addEventListener('DOMContentLoaded', async () => {
       // 1. Parse URL Parameters
       const urlParams = new URLSearchParams(window.location.search || window.location.hash.replace('#', '?'));
@@ -1632,27 +1700,29 @@
         });
       }
 
-      // 2. Phase 1: Load Chapters & Initial Hadith Batch (sub-100ms)
+      // 2. Load Chapters & Search Index
       try {
-        const [chaptersRes, initialHadithsRes] = await Promise.all([
+        const [chaptersRes, indexRes] = await Promise.all([
           fetch('./data/chapters.json'),
-          fetch('./data/initial_hadiths.json')
+          fetch('./data/search_index.json')
         ]);
 
         allChapters = await chaptersRes.json();
-        const initialHadiths = await initialHadithsRes.json();
+        const rawIndex = await indexRes.json();
 
         // Populate Chapter Dropdown & TOC Grid
         populateChaptersUI(allChapters);
 
-        // Pre-normalize initial batch
-        allHadiths = initialHadiths.map(h => ({
-          ...h,
-          _normArabic: normalizeArabic(h.as || h.a),
-          _normUrdu: normalizeArabic(h.u),
-          _normSharh: normalizeArabic(h.s),
-          _normCombined: normalizeArabic((h.as || h.a) + ' ' + h.u + ' ' + h.s + ' ' + h.cu + ' ' + h.su)
+        // Pre-normalize index for ultra-fast filtering
+        searchIndex = rawIndex.map(item => ({
+          ...item,
+          _normArabic: normalizeArabic(item.as),
+          _normUrdu: normalizeArabic(item.ut),
+          _normSharh: normalizeArabic(item.us),
+          _normCombined: normalizeArabic(item.as + ' ' + item.ut + ' ' + item.us + ' ' + item.cu + ' ' + item.su)
         }));
+
+        document.getElementById('statTotalHadiths').textContent = searchIndex.length.toLocaleString();
 
         // Render immediately
         applyFilters();
@@ -1664,11 +1734,13 @@
         }
 
       } catch (err) {
-        console.error('Error during Phase 1 load:', err);
+        console.error('Error during initial load:', err);
+        document.getElementById('loadingIndicator').innerHTML = `
+          <div style="color: #ef4444; font-size: 0.9rem;">
+            Failed to load library database. Please refresh the page.
+          </div>
+        `;
       }
-
-      // 3. Phase 2: Background Full Library Preload (Silent / Async)
-      loadFullLibrary();
 
       // Search Input Listener
       const searchInput = document.getElementById('searchInput');
@@ -1696,39 +1768,6 @@
         }
       });
     });
-
-    // Background Loader for Full 7,563 Hadiths
-    async function loadFullLibrary() {
-      const bgPill = document.getElementById('bgLoadPill');
-      bgPill.style.display = 'flex';
-
-      try {
-        const res = await fetch('./data/bukhari_all.json');
-        const rawFullList = await res.json();
-
-        allHadiths = rawFullList.map(h => ({
-          ...h,
-          _normArabic: normalizeArabic(h.as || h.a),
-          _normUrdu: normalizeArabic(h.u),
-          _normSharh: normalizeArabic(h.s),
-          _normCombined: normalizeArabic((h.as || h.a) + ' ' + h.u + ' ' + h.s + ' ' + h.cu + ' ' + h.su)
-        }));
-
-        isFullLibraryLoaded = true;
-        document.getElementById('statTotalHadiths').textContent = allHadiths.length.toLocaleString();
-
-        // Fade out load indicator
-        bgPill.style.opacity = '0';
-        setTimeout(() => bgPill.style.display = 'none', 400);
-
-        // Re-apply filters with full dataset
-        applyFilters();
-
-      } catch (err) {
-        console.warn('Could not load bukhari_all.json in background:', err);
-        bgPill.style.display = 'none';
-      }
-    }
 
     function populateChaptersUI(chapters) {
       const select = document.getElementById('chapterSelect');
@@ -1793,25 +1832,25 @@
       const numVal = isNum ? parseInt(q, 10) : null;
       const chId = currentChapter ? parseInt(currentChapter, 10) : null;
 
-      filteredHadiths = allHadiths.filter(h => {
+      filteredItems = searchIndex.filter(item => {
         // 1. Chapter filter
-        if (chId && h.c !== chId) return false;
+        if (chId && item.c !== chId) return false;
 
         // 2. Query filter
         if (q) {
           // Direct Hadith number match
-          if (isNum && h.n === numVal) return true;
-          if (isNum && String(h.n).startsWith(q)) return true;
+          if (isNum && item.id === numVal) return true;
+          if (isNum && String(item.id).startsWith(q)) return true;
 
           const words = qNorm.split(/\s+/).filter(Boolean);
           if (currentScope === 'arabic') {
-            return words.every(w => h._normArabic.includes(w));
+            return words.every(w => item._normArabic.includes(w));
           } else if (currentScope === 'urdu') {
-            return words.every(w => h._normUrdu.includes(w));
+            return words.every(w => item._normUrdu.includes(w));
           } else if (currentScope === 'sharh') {
-            return words.every(w => h._normSharh.includes(w));
+            return words.every(w => item._normSharh.includes(w));
           } else {
-            return words.every(w => h._normCombined.includes(w));
+            return words.every(w => item._normCombined.includes(w));
           }
         }
 
@@ -1830,7 +1869,7 @@
 
       container.innerHTML = '';
 
-      const total = filteredHadiths.length;
+      const total = filteredItems.length;
       const totalPages = Math.ceil(total / pageSize) || 1;
 
       // Active Badge Filter Display
@@ -1867,112 +1906,163 @@
 
       // Slice page
       const start = (currentPage - 1) * pageSize;
-      const pageSlice = filteredHadiths.slice(start, start + pageSize);
+      const pageSlice = filteredItems.slice(start, start + pageSize);
 
-      pageSlice.forEach(hadith => {
-        container.appendChild(createHadithCard(hadith));
+      pageSlice.forEach(item => {
+        const card = createHadithCardShell(item);
+        container.appendChild(card);
+        // Call API to fetch full matn, translation, and sharh for each hadith
+        loadHadithDetailsIntoCard(item.id, card);
       });
     }
 
-    function createHadithCard(h) {
+    // Creates the card shell with the improved Kitab & Baab banners
+    function createHadithCardShell(item) {
       const card = document.createElement('article');
       card.className = 'hadith-card';
-      card.id = `hadith-${h.n}`;
+      card.id = `hadith-${item.id}`;
 
-      const shareLink = `${window.location.origin}${window.location.pathname}?hadith=${h.n}`;
-      const formattedSharh = formatParagraphs(h.s);
-      const isLongSharh = h.s && h.s.length > 400;
+      const shareLink = `${window.location.origin}${window.location.pathname}?hadith=${item.id}`;
 
       card.innerHTML = `
-        <!-- Card Top Bar -->
-        <div class="card-top">
-          <div class="serial-group">
-            <span class="serial-tag">Hadith #${h.n}</span>
-            <span class="chapter-tag" onclick="filterByChapterId(${h.c})" title="Filter by this Book">
-              ${escapeHtml(h.cu || 'صحیح بخاری')}
+        <!-- Top Header Bar -->
+        <div class="card-header-bar">
+          <div class="hadith-badge-wrap">
+            <span class="hadith-num-badge">
+              <i class="fa-solid fa-hashtag"></i>
+              <span>${item.id}</span>
             </span>
-            ${h.su ? `<span class="section-tag">${escapeHtml(h.su)}</span>` : ''}
-          </div>
-
-          <div class="badges-group">
-            <span class="badge-grading"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(h.g || 'صحيح')}</span>
-            ${h.ta ? `<span class="badge-classif">${escapeHtml(h.ta)}</span>` : ''}
-            ${h.tr ? `<span class="badge-classif">${escapeHtml(h.tr)}</span>` : ''}
-            ${h.tq ? `<span class="badge-classif">${escapeHtml(h.tq)}</span>` : ''}
+            ${item.ta ? `<span class="badge-classif">${escapeHtml(item.ta)}</span>` : ''}
+            ${item.tr ? `<span class="badge-classif">${escapeHtml(item.tr)}</span>` : ''}
+            ${item.tq ? `<span class="badge-classif">${escapeHtml(item.tq)}</span>` : ''}
           </div>
 
           <div class="card-actions-top">
-            <button class="icon-action-btn" onclick="copyHadithText(${h.n})" title="Copy Hadith (Arabic + Translation + Sharh)">
+            <button class="icon-action-btn" onclick="copyHadithText(${item.id})" title="Copy Hadith (Arabic + Translation + Sharh)">
               <i class="fa-regular fa-copy"></i>
             </button>
-            <button class="icon-action-btn" onclick="copyShareLink('${escapeAttr(shareLink)}')" title="Copy Direct Link to this Hadith">
+            <button class="icon-action-btn" onclick="copyShareLink('${escapeAttr(shareLink)}')" title="Direct Link to this Hadith">
               <i class="fa-solid fa-link"></i>
             </button>
-            <button class="icon-action-btn" onclick="openReaderModal(${h.n})" title="Open Distraction-Free Reader Mode">
+            <button class="icon-action-btn" onclick="openReaderModal(${item.id})" title="Open Distraction-Free Reader Mode">
               <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
             </button>
           </div>
         </div>
 
-        <!-- 1. Arabic Matn Box -->
-        <div class="hadith-section-box arabic-box">
-          <div class="section-title-urdu title-arabic-matn">
-            متنِ حدیث (عربی)
+        <!-- Dedicated Chapter & Section Banner for Maximum Readability -->
+        <div class="kitab-baab-container">
+          <!-- Kitab (Chapter) Banner -->
+          <div class="kitab-banner" onclick="filterByChapterId(${item.c})" title="Filter by this Book">
+            <div class="kitab-banner-left">
+              <div class="kitab-icon-tag">
+                <i class="fa-solid fa-book-open"></i>
+                <span>کتاب</span>
+              </div>
+              <div class="kitab-title-urdu">${escapeHtml(item.cu || 'صحیح بخاری')}</div>
+            </div>
+            ${item.ca ? `<div class="kitab-title-arabic">${escapeHtml(item.ca)}</div>` : ''}
           </div>
-          <div class="arabic-text">
-            ${escapeHtml(h.a)}
-          </div>
+
+          <!-- Baab (Section) Banner -->
+          ${item.su ? `
+            <div class="baab-banner">
+              <div class="baab-icon-tag">
+                <i class="fa-regular fa-bookmark"></i>
+                <span>باب</span>
+              </div>
+              <div class="baab-title-urdu">${escapeHtml(item.su)}</div>
+            </div>
+          ` : ''}
         </div>
 
-        <!-- 2. Urdu Translation Box -->
-        <div class="hadith-section-box translation-box">
-          <div class="section-title-urdu title-urdu-trans">
-            ترجمہ: شیخ عبد الستار حماد
-          </div>
-          <div class="urdu-text">
-            ${escapeHtml(h.u)}
+        <!-- Dynamic Content Body (Loaded via individual API call) -->
+        <div id="hadith-body-${item.id}" class="hadith-content-body">
+          <div class="hadith-skeleton-loader">
+            <div class="skeleton-line" style="width: 70%; margin-left: auto;"></div>
+            <div class="skeleton-line" style="width: 90%; margin-left: auto;"></div>
+            <div class="skeleton-line" style="width: 60%; margin-left: auto;"></div>
           </div>
         </div>
-
-        <!-- 3. Urdu Sharh Box (Hidayat-ul-Qari) -->
-        ${h.s ? `
-          <div class="hadith-section-box sharh-box">
-            <div class="section-title-urdu title-urdu-sharh">
-              شرح: شیخ عبد الستار حماد (ہدایۃ القاری)
-            </div>
-            
-            <div id="sharh-content-${h.n}" class="sharh-content sharh-content-wrap ${isLongSharh && !areAllExpanded ? 'sharh-collapsed' : ''}">
-              ${formattedSharh}
-            </div>
-
-            ${isLongSharh ? `
-              <button class="toggle-sharh-btn" onclick="toggleSharhInline(${h.n})">
-                <i class="fa-solid fa-angles-down"></i> <span id="toggle-label-${h.n}">Read Full Commentary</span>
-              </button>
-            ` : ''}
-          </div>
-        ` : ''}
 
         <!-- Card Footer -->
         <div class="card-footer">
           <div class="footer-left">
-            <button class="card-btn card-btn-secondary" onclick="openReaderModal(${h.n})">
+            <button class="card-btn card-btn-secondary" onclick="openReaderModal(${item.id})">
               <i class="fa-solid fa-book-open"></i>
               <span>Reader Mode</span>
             </button>
-            <button class="card-btn card-btn-secondary" onclick="copyHadithText(${h.n})">
+            <button class="card-btn card-btn-secondary" onclick="copyHadithText(${item.id})">
               <i class="fa-regular fa-copy"></i>
               <span>Copy Hadith</span>
             </button>
           </div>
 
           <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
-            Sahih al-Bukhari #${h.n}
+            Sahih al-Bukhari #${item.id}
           </div>
         </div>
       `;
 
       return card;
+    }
+
+    // Loads individual Hadith details via API call
+    async function loadHadithDetailsIntoCard(hadithNum, card) {
+      const bodyContainer = card.querySelector(`#hadith-body-${hadithNum}`);
+      if (!bodyContainer) return;
+
+      const data = await fetchHadithData(hadithNum);
+      if (!data) {
+        bodyContainer.innerHTML = `<div style="color: #ef4444; font-size: 0.85rem; padding: 12px;">Failed to load hadith content.</div>`;
+        return;
+      }
+
+      const formattedSharh = formatParagraphs(data.sharh);
+      const isLongSharh = data.sharh && data.sharh.length > 400;
+
+      bodyContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <!-- 1. Arabic Matn Box -->
+          <div class="hadith-section-box arabic-box">
+            <div class="section-title-urdu title-arabic-matn">
+              متنِ حدیث (عربی)
+            </div>
+            <div class="arabic-text">
+              ${escapeHtml(data.arabic)}
+            </div>
+          </div>
+
+          <!-- 2. Urdu Translation Box -->
+          <div class="hadith-section-box translation-box">
+            <div class="section-title-urdu title-urdu-trans">
+              ترجمہ: شیخ عبد الستار حماد
+            </div>
+            <div class="urdu-text">
+              ${escapeHtml(data.translation)}
+            </div>
+          </div>
+
+          <!-- 3. Urdu Sharh Box (Hidayat-ul-Qari) -->
+          ${data.sharh ? `
+            <div class="hadith-section-box sharh-box">
+              <div class="section-title-urdu title-urdu-sharh">
+                شرح: شیخ عبد الستار حماد (ہدایۃ القاری)
+              </div>
+              
+              <div id="sharh-content-${data.id}" class="sharh-content sharh-content-wrap ${isLongSharh && !areAllExpanded ? 'sharh-collapsed' : ''}">
+                ${formattedSharh}
+              </div>
+
+              ${isLongSharh ? `
+                <button class="toggle-sharh-btn" onclick="toggleSharhInline(${data.id})">
+                  <i class="fa-solid fa-angles-down"></i> <span id="toggle-label-${data.id}">Read Full Commentary</span>
+                </button>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `;
     }
 
     function toggleSharhInline(num) {
@@ -2001,7 +2091,7 @@
     }
 
     function changePage(delta) {
-      const totalPages = Math.ceil(filteredHadiths.length / pageSize) || 1;
+      const totalPages = Math.ceil(filteredItems.length / pageSize) || 1;
       const newPage = currentPage + delta;
       if (newPage >= 1 && newPage <= totalPages) {
         currentPage = newPage;
@@ -2019,7 +2109,7 @@
     }
 
     function jumpToLastPage() {
-      const totalPages = Math.ceil(filteredHadiths.length / pageSize) || 1;
+      const totalPages = Math.ceil(filteredItems.length / pageSize) || 1;
       currentPage = totalPages;
       updateUrl();
       renderPage();
@@ -2098,43 +2188,61 @@
     }
 
     // Modal Distraction-Free Reader Mode
-    function openReaderModal(hadithNum) {
+    async function openReaderModal(hadithNum) {
       currentModalHadithNum = hadithNum;
       const modal = document.getElementById('readerModal');
       const body = document.getElementById('modalHadithBody');
       const title = document.getElementById('modalHadithTitle');
 
-      // Find in memory
-      const h = allHadiths.find(item => item.n === hadithNum);
-      if (!h) {
-        body.innerHTML = `<div style="color: #ef4444; padding: 20px; text-align: center;">Hadith #${hadithNum} not found or still loading.</div>`;
-        modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-        return;
-      }
-
-      title.textContent = `Sahih al-Bukhari : Hadith #${h.n}`;
+      title.textContent = `Sahih al-Bukhari : Hadith #${hadithNum}`;
+      body.innerHTML = `
+        <div class="state-container">
+          <div class="spinner"></div>
+          <p style="color: var(--text-muted);">Loading Hadith #${hadithNum} via API...</p>
+        </div>
+      `;
       modal.classList.add('open');
       document.body.style.overflow = 'hidden';
+
+      const data = await fetchHadithData(hadithNum);
+      if (!data) {
+        body.innerHTML = `<div style="color: #ef4444; padding: 20px; text-align: center;">Failed to load Hadith #${hadithNum}.</div>`;
+        return;
+      }
 
       // Setup prev/next navigation in modal
       const prevBtn = document.getElementById('modalPrevBtn');
       const nextBtn = document.getElementById('modalNextBtn');
 
-      prevBtn.disabled = (h.n <= 1);
-      prevBtn.onclick = () => openReaderModal(h.n - 1);
+      prevBtn.disabled = (data.id <= 1);
+      prevBtn.onclick = () => openReaderModal(data.id - 1);
 
-      nextBtn.disabled = (h.n >= 7563);
-      nextBtn.onclick = () => openReaderModal(h.n + 1);
+      nextBtn.disabled = (data.id >= 7563);
+      nextBtn.onclick = () => openReaderModal(data.id + 1);
 
       body.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="serial-tag">#${h.n}</span>
-            <span class="chapter-tag">${escapeHtml(h.cu)}</span>
-            ${h.su ? `<span class="section-tag">${escapeHtml(h.su)}</span>` : ''}
+        <!-- Dedicated Chapter & Section Banner in Reader Modal -->
+        <div class="kitab-baab-container">
+          <div class="kitab-banner">
+            <div class="kitab-banner-left">
+              <div class="kitab-icon-tag">
+                <i class="fa-solid fa-book-open"></i>
+                <span>کتاب</span>
+              </div>
+              <div class="kitab-title-urdu">${escapeHtml(data.chapter_urdu || 'صحیح بخاری')}</div>
+            </div>
+            ${data.chapter_arabic ? `<div class="kitab-title-arabic">${escapeHtml(data.chapter_arabic)}</div>` : ''}
           </div>
-          <span class="badge-grading"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(h.g || 'صحيح')}</span>
+
+          ${data.section_urdu ? `
+            <div class="baab-banner">
+              <div class="baab-icon-tag">
+                <i class="fa-regular fa-bookmark"></i>
+                <span>باب</span>
+              </div>
+              <div class="baab-title-urdu">${escapeHtml(data.section_urdu)}</div>
+            </div>
+          ` : ''}
         </div>
 
         <!-- Arabic -->
@@ -2143,7 +2251,7 @@
             متنِ حدیث (عربی)
           </div>
           <div class="arabic-text" style="font-size: calc(var(--fs-arabic) + 0.15rem); line-height: 2.5;">
-            ${escapeHtml(h.a)}
+            ${escapeHtml(data.arabic)}
           </div>
         </div>
 
@@ -2153,18 +2261,18 @@
             ترجمہ: شیخ عبد الستار حماد
           </div>
           <div class="urdu-text" style="font-size: calc(var(--fs-urdu) + 0.1rem); line-height: 2.4;">
-            ${escapeHtml(h.u)}
+            ${escapeHtml(data.translation)}
           </div>
         </div>
 
         <!-- Sharh -->
-        ${h.s ? `
+        ${data.sharh ? `
           <div class="hadith-section-box sharh-box">
             <div class="section-title-urdu title-urdu-sharh">
               شرح: شیخ عبد الستار حماد (ہدایۃ القاری)
             </div>
             <div class="sharh-content" style="font-size: var(--fs-urdu); line-height: 2.4;">
-              ${formatParagraphs(h.s)}
+              ${formatParagraphs(data.sharh)}
             </div>
           </div>
         ` : ''}
@@ -2210,13 +2318,13 @@
     }
 
     // Copying functions
-    function copyHadithText(hadithNum) {
-      const h = allHadiths.find(item => item.n === hadithNum);
-      if (!h) {
+    async function copyHadithText(hadithNum) {
+      const data = await fetchHadithData(hadithNum);
+      if (!data) {
         showToast('Hadith text not ready');
         return;
       }
-      const text = `Sahih al-Bukhari : Hadith #${h.n}\n${h.cu} | ${h.su}\nGrading: ${h.g || 'صحيح'}\n\n[متنِ حدیث (عربی)]:\n${h.a}\n\n[ترجمہ: شیخ عبد الستار حماد]:\n${h.u}\n\n[شرح: شیخ عبد الستار حماد (ہدایۃ القاری)]:\n${h.s ? h.s.substring(0, 500) + '...' : ''}\n\nSource: Hidayat-ul-Qari Sharah Sahih al-Bukhari`;
+      const text = `Sahih al-Bukhari : Hadith #${data.id}\n${data.chapter_urdu} | ${data.section_urdu}\n\n[متنِ حدیث (عربی)]:\n${data.arabic}\n\n[ترجمہ: شیخ عبد الستار حماد]:\n${data.translation}\n\n[شرح: شیخ عبد الستار حماد (ہدایۃ القاری)]:\n${data.sharh ? data.sharh.substring(0, 500) + '...' : ''}\n\nSource: Hidayat-ul-Qari Sharah Sahih al-Bukhari`;
       navigator.clipboard.writeText(text).then(() => {
         showToast(`Hadith #${hadithNum} copied to clipboard!`);
       }).catch(() => {
