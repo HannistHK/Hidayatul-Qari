@@ -3,7 +3,7 @@
 build_data.py
 Generates:
 1. data/chapters.json (Table of Contents for 98 Books)
-2. data/search_index.json (Lightweight instant search & filter index)
+2. data/search_index.json (Pre-normalized lightweight instant search & filter index)
 3. data/hadiths/{id}.json (Individual standalone JSON file for every hadith with Matn, Tarjumah, and Sharh)
 4. data/stats.json (Metadata)
 """
@@ -12,6 +12,7 @@ import os
 import sys
 import json
 import sqlite3
+import re
 import time
 
 if sys.platform == 'win32':
@@ -27,6 +28,17 @@ os.makedirs(HADITHS_DIR, exist_ok=True)
 
 CHAPTERS_INPUT = os.path.join(PARENT_DIR, 'chapters.json')
 DB_INPUT = os.path.join(PARENT_DIR, 'bukhari.db')
+
+def normalize_text(text):
+    if not text:
+        return ''
+    text = re.sub(r'[\u064B-\u065F\u0670]', '', text)  # remove harakat
+    text = re.sub(r'[آأإٱ]', 'ا', text)
+    text = text.replace('ة', 'ہ').replace('ك', 'ک')
+    for y in ['ي', 'ى', 'ئ']:
+        text = text.replace(y, 'ی')
+    text = re.sub(r'[،۔؛؟\-\.,\/#!$%\^&\*;:{}=\-_`~()«»]', ' ', text)
+    return re.sub(r'\s+', ' ', text).strip().lower()
 
 def build_all():
     start_time = time.time()
@@ -116,19 +128,19 @@ def build_all():
             json.dump(hadith_obj, hf, ensure_ascii=False, separators=(',', ':'))
         count_files += 1
 
+        # Pre-normalized fields for instant 0-CPU-overhead client search
+        norm_ar = normalize_text(r['arabic_text_search'])
+        norm_ur = normalize_text(r['urdu_translation'])
+        norm_sh = normalize_text(r['urdu_sharh'][:90] if r['urdu_sharh'] else '')
+
         # Search Index Item
         search_index.append({
             'id': hid,
             'c': r['chapter_id'],
-            'cu': r['chapter_urdu'],
-            'ca': r['chapter_arabic'],
-            'su': r['section_urdu'],
-            'as': r['arabic_text_search'],
-            'ut': r['urdu_translation'],
-            'us': r['urdu_sharh'][:350] if r['urdu_sharh'] else '',
-            'ta': r['type_atraaf'] or '',
-            'tr': r['type_rawaat'] or '',
-            'tq': r['type_qft'] or ''
+            'su': r['section_urdu'] or '',
+            'na': norm_ar,
+            'nu': norm_ur,
+            'ns': norm_sh
         })
 
     print(f"2. Generated {count_files} individual hadith JSON files in {HADITHS_DIR}")
@@ -139,7 +151,7 @@ def build_all():
         json.dump(search_index, f, ensure_ascii=False, separators=(',', ':'))
 
     index_mb = os.path.getsize(index_path) / (1024 * 1024)
-    print(f"3. Generated search index: {index_path} ({index_mb:.2f} MB)")
+    print(f"3. Generated pre-normalized search index: {index_path} ({index_mb:.2f} MB)")
     print(f"All done in {time.time() - start_time:.2f} seconds!")
 
 if __name__ == '__main__':

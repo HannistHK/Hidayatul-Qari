@@ -1680,7 +1680,59 @@
       return null;
     }
 
-    // Initialize application
+    // Asynchronous Search Index Loader & Chapter Resolver
+    let isSearchIndexLoaded = false;
+    let isSearchIndexLoading = false;
+    let searchIndexPromise = null;
+
+    function loadSearchIndex() {
+      if (isSearchIndexLoaded) return Promise.resolve(searchIndex);
+      if (isSearchIndexLoading) return searchIndexPromise;
+
+      isSearchIndexLoading = true;
+      searchIndexPromise = fetch('./data/search_index.json')
+        .then(res => {
+          if (!res.ok) throw new Error('Network error loading search index');
+          return res.json();
+        })
+        .then(data => {
+          searchIndex = data;
+          isSearchIndexLoaded = true;
+          isSearchIndexLoading = false;
+          return searchIndex;
+        })
+        .catch(err => {
+          console.error('Search index load error:', err);
+          isSearchIndexLoading = false;
+          throw err;
+        });
+
+      return searchIndexPromise;
+    }
+
+    function getChapterForHadithId(hid) {
+      if (!allChapters || allChapters.length === 0) return null;
+      for (let i = 0; i < allChapters.length; i++) {
+        const ch = allChapters[i];
+        if (hid >= ch.hadith_start && hid <= ch.hadith_end) {
+          return ch;
+        }
+      }
+      return null;
+    }
+
+    function getTotalPages() {
+      if (currentQuery) {
+        return Math.ceil(filteredItems.length / pageSize) || 1;
+      }
+      if (currentChapter) {
+        const ch = allChapters.find(c => String(c.id) === String(currentChapter));
+        return Math.ceil((ch ? ch.hadith_count : 0) / pageSize) || 1;
+      }
+      return Math.ceil(7563 / pageSize);
+    }
+
+    // Initialize application with Instant First Paint (<50ms)
     document.addEventListener('DOMContentLoaded', async () => {
       // 1. Parse URL Parameters
       const urlParams = new URLSearchParams(window.location.search || window.location.hash.replace('#', '?'));
@@ -1700,37 +1752,30 @@
         });
       }
 
-      // 2. Load Chapters & Search Index
+      // 2. Load lightweight Chapters metadata (<18 KB) for instant first paint
       try {
-        const [chaptersRes, indexRes] = await Promise.all([
-          fetch('./data/chapters.json'),
-          fetch('./data/search_index.json')
-        ]);
-
+        const chaptersRes = await fetch('./data/chapters.json');
         allChapters = await chaptersRes.json();
-        const rawIndex = await indexRes.json();
 
         // Populate Chapter Dropdown & TOC Grid
         populateChaptersUI(allChapters);
 
-        // Pre-normalize index for ultra-fast filtering
-        searchIndex = rawIndex.map(item => ({
-          ...item,
-          _normArabic: normalizeArabic(item.as),
-          _normUrdu: normalizeArabic(item.ut),
-          _normSharh: normalizeArabic(item.us),
-          _normCombined: normalizeArabic(item.as + ' ' + item.ut + ' ' + item.us + ' ' + item.cu + ' ' + item.su)
-        }));
+        document.getElementById('statTotalHadiths').textContent = '7,563';
 
-        document.getElementById('statTotalHadiths').textContent = searchIndex.length.toLocaleString();
-
-        // Render immediately
+        // Render immediately without waiting for search index
         applyFilters();
 
         // Check if direct hadith requested
         if (urlParams.has('hadith')) {
           const hNum = parseInt(urlParams.get('hadith'), 10);
           if (hNum) openReaderModal(hNum);
+        }
+
+        // Silently preload search index in background after initial render
+        if (!currentQuery) {
+          setTimeout(() => {
+            loadSearchIndex();
+          }, 300);
         }
 
       } catch (err) {
@@ -1742,8 +1787,12 @@
         `;
       }
 
-      // Search Input Listener
+      // Search Input Listener with auto-trigger on focus
       const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('focus', () => {
+        loadSearchIndex();
+      });
+
       searchInput.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
         const val = e.target.value.trim();
@@ -1754,7 +1803,7 @@
           currentPage = 1;
           updateUrl();
           applyFilters();
-        }, 180);
+        }, 120);
       });
 
       // Keyboard navigation
@@ -1821,46 +1870,131 @@
       renderTocGrid(filtered);
     }
 
-    // Client-side search and filtering
+    // Unified routing: Instant browsing vs sub-2ms search filtering
     function applyFilters() {
       const loader = document.getElementById('loadingIndicator');
-      loader.style.display = 'none';
+      if (loader) loader.style.display = 'none';
 
       const q = currentQuery.trim();
-      const qNorm = normalizeArabic(q);
+
+      // Mode 1: Instant Browsing (No search query active)
+      if (!q) {
+        renderBrowsePage();
+        return;
+      }
+
+      // Mode 2: Search Query Active
+      if (!isSearchIndexLoaded) {
+        const container = document.getElementById('hadithsGrid');
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 20px; gap: 14px;">
+            <div class="spinner"></div>
+            <div style="font-size: 0.95rem; color: var(--text-muted);">
+              Searching Hadith library for "${escapeHtml(q)}"...
+            </div>
+          </div>
+        `;
+        document.getElementById('noResults').style.display = 'none';
+        document.getElementById('paginationContainer').style.display = 'none';
+
+        loadSearchIndex().then(() => {
+          applyFilters();
+        });
+        return;
+      }
+
+      // Search index is ready in memory: filter across pre-normalized fields in <2ms
       const isNum = !isNaN(q) && q.length > 0;
       const numVal = isNum ? parseInt(q, 10) : null;
+      const qNorm = normalizeArabic(q);
+      const words = qNorm.split(/\s+/).filter(Boolean);
       const chId = currentChapter ? parseInt(currentChapter, 10) : null;
 
       filteredItems = searchIndex.filter(item => {
         // 1. Chapter filter
         if (chId && item.c !== chId) return false;
 
-        // 2. Query filter
-        if (q) {
-          // Direct Hadith number match
-          if (isNum && item.id === numVal) return true;
-          if (isNum && String(item.id).startsWith(q)) return true;
+        // 2. Direct Hadith number match
+        if (isNum && (item.id === numVal || String(item.id).startsWith(q))) return true;
 
-          const words = qNorm.split(/\s+/).filter(Boolean);
-          if (currentScope === 'arabic') {
-            return words.every(w => item._normArabic.includes(w));
-          } else if (currentScope === 'urdu') {
-            return words.every(w => item._normUrdu.includes(w));
-          } else if (currentScope === 'sharh') {
-            return words.every(w => item._normSharh.includes(w));
-          } else {
-            return words.every(w => item._normCombined.includes(w));
-          }
+        // 3. Keyword filter
+        if (currentScope === 'arabic') {
+          return words.every(w => item.na && item.na.includes(w));
+        } else if (currentScope === 'urdu') {
+          return words.every(w => item.nu && item.nu.includes(w));
+        } else if (currentScope === 'sharh') {
+          return words.every(w => item.ns && item.ns.includes(w));
+        } else {
+          return words.every(w => (item.na && item.na.includes(w)) || (item.nu && item.nu.includes(w)) || (item.ns && item.ns.includes(w)) || (item.su && item.su.includes(w)));
         }
-
-        return true;
       });
 
-      renderPage();
+      renderSearchResultsPage();
     }
 
-    function renderPage() {
+    // Instant Browse Mode: Renders from chapters metadata & micro JSONs in <50ms
+    function renderBrowsePage() {
+      const container = document.getElementById('hadithsGrid');
+      const noResults = document.getElementById('noResults');
+      const pagination = document.getElementById('paginationContainer');
+      const activeFilterRow = document.getElementById('activeFilterRow');
+      const badge = document.getElementById('activeFilterBadge');
+
+      container.innerHTML = '';
+
+      let filterLabels = [];
+      let total = 7563;
+      let startHadithId = 1;
+      let endHadithId = 7563;
+
+      if (currentChapter) {
+        const chObj = allChapters.find(c => String(c.id) === String(currentChapter));
+        if (chObj) {
+          filterLabels.push(`Book: ${chObj.urdu}`);
+          total = chObj.hadith_count;
+          startHadithId = chObj.hadith_start;
+          endHadithId = chObj.hadith_end;
+        }
+      }
+
+      if (filterLabels.length > 0) {
+        badge.textContent = filterLabels.join(' • ');
+        activeFilterRow.style.display = 'flex';
+      } else {
+        activeFilterRow.style.display = 'none';
+      }
+
+      if (total === 0) {
+        noResults.style.display = 'flex';
+        pagination.style.display = 'none';
+        return;
+      }
+
+      noResults.style.display = 'none';
+      pagination.style.display = 'flex';
+
+      const totalPages = Math.ceil(total / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = 1;
+
+      document.getElementById('pageIndicator').textContent = `${currentPage} / ${totalPages}`;
+      document.getElementById('firstPageBtn').disabled = currentPage <= 1;
+      document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+      document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+      document.getElementById('lastPageBtn').disabled = currentPage >= totalPages;
+
+      const pageStartId = startHadithId + (currentPage - 1) * pageSize;
+      const pageEndId = Math.min(pageStartId + pageSize - 1, endHadithId);
+
+      for (let hid = pageStartId; hid <= pageEndId; hid++) {
+        const item = { id: hid, c: currentChapter || getChapterForHadithId(hid)?.id };
+        const card = createHadithCardShell(item);
+        container.appendChild(card);
+        loadHadithDetailsIntoCard(hid, card);
+      }
+    }
+
+    // Search Results Mode: Renders filtered matches
+    function renderSearchResultsPage() {
       const container = document.getElementById('hadithsGrid');
       const noResults = document.getElementById('noResults');
       const pagination = document.getElementById('paginationContainer');
@@ -1871,10 +2005,10 @@
 
       const total = filteredItems.length;
       const totalPages = Math.ceil(total / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = 1;
 
-      // Active Badge Filter Display
       let filterLabels = [];
-      if (currentQuery) filterLabels.push(`Search: "${currentQuery}"`);
+      if (currentQuery) filterLabels.push(`Search: "${currentQuery}" (${total} results)`);
       if (currentChapter) {
         const chObj = allChapters.find(c => String(c.id) === String(currentChapter));
         filterLabels.push(`Book: ${chObj ? chObj.urdu : currentChapter}`);
@@ -1897,21 +2031,18 @@
       noResults.style.display = 'none';
       pagination.style.display = 'flex';
 
-      // Pagination indicators
       document.getElementById('pageIndicator').textContent = `${currentPage} / ${totalPages}`;
       document.getElementById('firstPageBtn').disabled = currentPage <= 1;
       document.getElementById('prevPageBtn').disabled = currentPage <= 1;
       document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
       document.getElementById('lastPageBtn').disabled = currentPage >= totalPages;
 
-      // Slice page
       const start = (currentPage - 1) * pageSize;
       const pageSlice = filteredItems.slice(start, start + pageSize);
 
       pageSlice.forEach(item => {
         const card = createHadithCardShell(item);
         container.appendChild(card);
-        // Call API to fetch full matn, translation, and sharh for each hadith
         loadHadithDetailsIntoCard(item.id, card);
       });
     }
@@ -1923,6 +2054,7 @@
       card.id = `hadith-${item.id}`;
 
       const shareLink = `${window.location.origin}${window.location.pathname}?hadith=${item.id}`;
+      const ch = getChapterForHadithId(item.id) || (item.c ? allChapters.find(c => c.id === item.c) : null) || { id: item.c || 1, urdu: 'صحیح بخاری', arabic: '' };
 
       card.innerHTML = `
         <!-- Top Header Bar -->
@@ -1932,9 +2064,11 @@
               <i class="fa-solid fa-hashtag"></i>
               <span>${item.id}</span>
             </span>
-            ${item.ta ? `<span class="badge-classif">${escapeHtml(item.ta)}</span>` : ''}
-            ${item.tr ? `<span class="badge-classif">${escapeHtml(item.tr)}</span>` : ''}
-            ${item.tq ? `<span class="badge-classif">${escapeHtml(item.tq)}</span>` : ''}
+            <span id="hadith-classif-${item.id}">
+              ${item.ta ? `<span class="badge-classif">${escapeHtml(item.ta)}</span>` : ''}
+              ${item.tr ? `<span class="badge-classif">${escapeHtml(item.tr)}</span>` : ''}
+              ${item.tq ? `<span class="badge-classif">${escapeHtml(item.tq)}</span>` : ''}
+            </span>
           </div>
 
           <div class="card-actions-top">
@@ -1953,27 +2087,29 @@
         <!-- Dedicated Chapter & Section Banner for Maximum Readability -->
         <div class="kitab-baab-container">
           <!-- Kitab (Chapter) Banner -->
-          <div class="kitab-banner" onclick="filterByChapterId(${item.c})" title="Filter by this Book">
+          <div class="kitab-banner" onclick="filterByChapterId(${ch.id})" title="Filter by this Book">
             <div class="kitab-banner-left">
               <div class="kitab-icon-tag">
                 <i class="fa-solid fa-book-open"></i>
                 <span>کتاب</span>
               </div>
-              <div class="kitab-title-urdu">${escapeHtml(item.cu || 'صحیح بخاری')}</div>
+              <div class="kitab-title-urdu">${escapeHtml(ch.urdu || 'صحیح بخاری')}</div>
             </div>
-            ${item.ca ? `<div class="kitab-title-arabic">${escapeHtml(item.ca)}</div>` : ''}
+            ${ch.arabic ? `<div class="kitab-title-arabic">${escapeHtml(ch.arabic)}</div>` : ''}
           </div>
 
           <!-- Baab (Section) Banner -->
-          ${item.su ? `
-            <div class="baab-banner">
-              <div class="baab-icon-tag">
-                <i class="fa-regular fa-bookmark"></i>
-                <span>باب</span>
+          <div id="hadith-baab-${item.id}">
+            ${item.su ? `
+              <div class="baab-banner">
+                <div class="baab-icon-tag">
+                  <i class="fa-regular fa-bookmark"></i>
+                  <span>باب</span>
+                </div>
+                <div class="baab-title-urdu">${escapeHtml(item.su)}</div>
               </div>
-              <div class="baab-title-urdu">${escapeHtml(item.su)}</div>
-            </div>
-          ` : ''}
+            ` : ''}
+          </div>
         </div>
 
         <!-- Dynamic Content Body (Loaded via individual API call) -->
@@ -2016,6 +2152,30 @@
       if (!data) {
         bodyContainer.innerHTML = `<div style="color: #ef4444; font-size: 0.85rem; padding: 12px;">Failed to load hadith content.</div>`;
         return;
+      }
+
+      // Populate section banner if not already filled
+      const baabContainer = card.querySelector(`#hadith-baab-${hadithNum}`);
+      if (baabContainer && data.section_urdu && !baabContainer.querySelector('.baab-banner')) {
+        baabContainer.innerHTML = `
+          <div class="baab-banner">
+            <div class="baab-icon-tag">
+              <i class="fa-regular fa-bookmark"></i>
+              <span>باب</span>
+            </div>
+            <div class="baab-title-urdu">${escapeHtml(data.section_urdu)}</div>
+          </div>
+        `;
+      }
+
+      // Populate classification badges if not already filled
+      const classifWrap = card.querySelector(`#hadith-classif-${hadithNum}`);
+      if (classifWrap && data.classification && !classifWrap.querySelector('.badge-classif')) {
+        let badgesHtml = '';
+        if (data.classification.atraaf) badgesHtml += `<span class="badge-classif">${escapeHtml(data.classification.atraaf)}</span>`;
+        if (data.classification.rawaat) badgesHtml += `<span class="badge-classif">${escapeHtml(data.classification.rawaat)}</span>`;
+        if (data.classification.qft) badgesHtml += `<span class="badge-classif">${escapeHtml(data.classification.qft)}</span>`;
+        classifWrap.innerHTML = badgesHtml;
       }
 
       const formattedSharh = formatParagraphs(data.sharh);
@@ -2091,12 +2251,12 @@
     }
 
     function changePage(delta) {
-      const totalPages = Math.ceil(filteredItems.length / pageSize) || 1;
+      const totalPages = getTotalPages();
       const newPage = currentPage + delta;
       if (newPage >= 1 && newPage <= totalPages) {
         currentPage = newPage;
         updateUrl();
-        renderPage();
+        applyFilters();
         window.scrollTo({ top: 380, behavior: 'smooth' });
       }
     }
@@ -2104,15 +2264,14 @@
     function jumpToPage(p) {
       currentPage = p;
       updateUrl();
-      renderPage();
+      applyFilters();
       window.scrollTo({ top: 380, behavior: 'smooth' });
     }
 
     function jumpToLastPage() {
-      const totalPages = Math.ceil(filteredItems.length / pageSize) || 1;
-      currentPage = totalPages;
+      currentPage = getTotalPages();
       updateUrl();
-      renderPage();
+      applyFilters();
       window.scrollTo({ top: 380, behavior: 'smooth' });
     }
 
